@@ -8,6 +8,10 @@ using RdvApp.API.Data;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Net;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
+using RdvApp.API.Helpers;
 
 namespace RdvApp.API
 {
@@ -43,6 +47,21 @@ namespace RdvApp.API
         {
             if (env.IsDevelopment())
                 app.UseDeveloperExceptionPage();
+            else
+            {
+                app.UseExceptionHandler(builder => {
+                    builder.Run(async context => {
+                        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+
+                        var exp = context.Features.Get<IExceptionHandlerFeature>();
+                        if (exp != null)
+                        {
+                            context.Response.AddApplicationError(exp.Error.Message);
+                            await context.Response.WriteAsync(exp.Error.Message);
+                        }
+                    });
+                });
+            }
 
             app.UseHttpsRedirection();
 

@@ -18,7 +18,7 @@ export class RegisterComponent {
     this.authService.register(this.model)
       .subscribe(
         _ => console.log('Succefully Registered'),
-        error => console.log('Registration Error', error));
+        error => console.log(error));
   }
 
   cancel(registerForm: NgForm) {
