@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NgForm } from '@angular/forms';
 import { AuthService } from '../_services/auth.service';
+import { AlertifyService } from '../_services/alertify.service';
 
 @Component({
   selector: 'app-register',
@@ -12,13 +13,13 @@ export class RegisterComponent {
 
   model: any = {};
 
-  constructor(private authService: AuthService, private router: Router) { }
+  constructor(private authService: AuthService, private router: Router, private alertify: AlertifyService) { }
 
   register() {
     this.authService.register(this.model)
       .subscribe(
-        _ => console.log('Succefully Registered'),
-        error => console.log(error));
+        _ => this.alertify.success('Succefully Registered'),
+        error => this.alertify.error(error));
   }
 
   cancel(registerForm: NgForm) {
