@@ -11,6 +11,7 @@ export class AuthService {
 
   private readonly tokenKey = 'token';
   private readonly name = 'unique_name';
+  private readonly nameid = 'nameid';
   private readonly baseUrl = `${environment.apiUrl}/auth`;
   private readonly jwtHelper = new JwtHelperService();
   private decodedToken: any;
@@ -35,6 +36,7 @@ export class AuthService {
             localStorage.setItem(this.tokenKey, user.token);
             this.decodedToken = this.jwtHelper.decodeToken(user.token);
             localStorage.setItem(this.name, this.decodedToken.unique_name);
+            localStorage.setItem(this.nameid, this.decodedToken.nameid);
           }
         })
       );
@@ -51,6 +53,10 @@ export class AuthService {
     return localStorage.getItem(this.tokenKey);
   }
 
+  get nameId() {
+    return +localStorage.getItem(this.nameid);
+  }
+
   get uniqueName() {
     const uniqueName = localStorage.getItem(this.name);
 
@@ -64,6 +70,8 @@ export class AuthService {
   logout() {
     localStorage.removeItem(this.uniqueName);
     localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.name);
+    localStorage.removeItem(this.nameid);
   }
 
 }

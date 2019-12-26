@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RdvApp.API.Data;
 using RdvApp.API.Dtos;
+using RdvApp.API.Models;
 
 namespace RdvApp.API.Controllers
 {
@@ -43,6 +45,22 @@ namespace RdvApp.API.Controllers
                 return Ok(userToReturn);
             else
                 return NotFound();
+        }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateUser(int id, UserForUpdateDto userForUpdateDto)
+        {
+            if (id != int.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value))
+                return Unauthorized();
+
+            var userFromRepo = await repo.GetUser(id);
+
+            mapper.Map<UserForUpdateDto, User>(userForUpdateDto, userFromRepo);
+
+            if (await repo.SaveAll())
+                return NoContent();
+
+            throw new Exception("Updating user {id} failed on save");
         }
     }
 }
