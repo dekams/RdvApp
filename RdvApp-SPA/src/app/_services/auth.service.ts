@@ -2,17 +2,22 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { JwtHelperService } from '@auth0/angular-jwt';
+import { environment } from 'src/environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  private readonly token = 'token';
+  private readonly tokenKey = 'token';
   private readonly name = 'unique_name';
-  private readonly baseUrl = 'https://localhost:5001/api/auth';
+  private readonly baseUrl = `${environment.apiUrl}/auth`;
   private readonly jwtHelper = new JwtHelperService();
   private decodedToken: any;
+
+  static getToken() {
+    return localStorage.getItem('token');
+  }
 
   constructor(private http: HttpClient) { }
 
@@ -27,7 +32,7 @@ export class AuthService {
           const user = response;
 
           if (user) {
-            localStorage.setItem(this.token, user.token);
+            localStorage.setItem(this.tokenKey, user.token);
             this.decodedToken = this.jwtHelper.decodeToken(user.token);
             localStorage.setItem(this.name, this.decodedToken.unique_name);
           }
@@ -38,8 +43,12 @@ export class AuthService {
   isLoggedIn() {
     // return !! localStorage.getItem(this.token);
 
-    const token = localStorage.getItem(this.token);
+    const token = localStorage.getItem(this.tokenKey);
     return !this.jwtHelper.isTokenExpired(token);
+  }
+
+  get token() {
+    return localStorage.getItem(this.tokenKey);
   }
 
   get uniqueName() {
@@ -54,7 +63,7 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem(this.uniqueName);
-    localStorage.removeItem(this.token);
+    localStorage.removeItem(this.tokenKey);
   }
 
 }
