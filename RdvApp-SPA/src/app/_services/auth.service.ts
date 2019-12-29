@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from 'src/environments/environment';
+import { BehaviorSubject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
@@ -10,11 +11,14 @@ import { environment } from 'src/environments/environment';
 export class AuthService {
 
   private readonly tokenKey = 'token';
+  private readonly photoUrlKey = 'photoUrl';
   private readonly name = 'unique_name';
   private readonly nameid = 'nameid';
   private readonly baseUrl = `${environment.apiUrl}/auth`;
   private readonly jwtHelper = new JwtHelperService();
   private decodedToken: any;
+  // tslint:disable-next-line: max-line-length
+  public readonly photoSubject = new BehaviorSubject<string>((this.photoUrl) ? this.photoUrl : '../../../assets/user.png');
 
   static getToken() {
     return localStorage.getItem('token');
@@ -34,7 +38,10 @@ export class AuthService {
 
           if (user) {
             localStorage.setItem(this.tokenKey, user.token);
+
+            this.setPhotoUrl(user.photoUrl);
             this.decodedToken = this.jwtHelper.decodeToken(user.token);
+
             localStorage.setItem(this.name, this.decodedToken.unique_name);
             localStorage.setItem(this.nameid, this.decodedToken.nameid);
           }
@@ -53,6 +60,10 @@ export class AuthService {
     return localStorage.getItem(this.tokenKey);
   }
 
+  private get photoUrl() {
+    return localStorage.getItem(this.photoUrlKey);
+  }
+
   get nameId() {
     return +localStorage.getItem(this.nameid);
   }
@@ -67,9 +78,14 @@ export class AuthService {
     }
   }
 
+  setPhotoUrl(photoUrl: string) {
+    localStorage.setItem(this.photoUrlKey, photoUrl);
+    this.photoSubject.next(photoUrl);
+  }
+
   logout() {
-    localStorage.removeItem(this.uniqueName);
     localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.photoUrlKey);
     localStorage.removeItem(this.name);
     localStorage.removeItem(this.nameid);
   }

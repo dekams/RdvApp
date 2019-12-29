@@ -15,6 +15,9 @@
     </ul>
 
     <div *ngIf="isLoggedIn(); else loggedOut" class="dropdown" dropdown>
+      <span class="mr-2">
+        <img [src]="photoUrl" alt="" class="img">
+      </span>
       <a class="dropdown-toggle text-light" dropdownToggle (click)="false">Welcome {{ uniqueName() | titlecase }}</a>
     
       <div class="dropdown-menu mt-3" *dropdownMenu>

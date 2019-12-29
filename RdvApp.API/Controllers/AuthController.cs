@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -53,7 +52,8 @@ namespace RdvApp.API.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
             return Ok(new {
-                token = tokenHandler.WriteToken(token)
+                token = tokenHandler.WriteToken(token),
+                photoUrl = userFromRepo.Photos.FirstOrDefault(p => p.IsMain).Url
             });
         }
 
