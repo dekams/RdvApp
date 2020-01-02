@@ -10,6 +10,7 @@ using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Extensions.Configuration;
 using System.IdentityModel.Tokens.Jwt;
+using AutoMapper;
 
 namespace RdvApp.API.Controllers
 {
@@ -19,11 +20,13 @@ namespace RdvApp.API.Controllers
     {
         private readonly IAuthRepository repo;
         private readonly IConfiguration config;
+        private readonly IMapper mapper;
 
-        public AuthController(IAuthRepository repo, IConfiguration config)
+        public AuthController(IAuthRepository repo, IConfiguration config, IMapper mapper)
         {
             this.repo = repo;
             this.config = config;
+            this.mapper = mapper;
         }
 
         [HttpPost("login")]
@@ -53,7 +56,7 @@ namespace RdvApp.API.Controllers
 
             return Ok(new {
                 token = tokenHandler.WriteToken(token),
-                photoUrl = userFromRepo.Photos.FirstOrDefault(p => p.IsMain).Url
+                photoUrl = userFromRepo?.Photos?.FirstOrDefault(p => p.IsMain)?.Url
             });
         }
 
@@ -65,9 +68,12 @@ namespace RdvApp.API.Controllers
             if (await repo.UserExists(userForRegisterDto.Username))
                 return BadRequest("Username already exist");
 
-            var registeredUser = await repo.Register(new User { Username = userForRegisterDto.Username }, userForRegisterDto.Password);
+            var userToCreate = mapper.Map<User>(userForRegisterDto);
 
-            return StatusCode(201);
+            var createdUser = await repo.Register(userToCreate, userForRegisterDto.Password);
+            var userToReturn = mapper.Map<UserForDetailedDto>(createdUser);
+
+            return CreatedAtRoute("GetUser", new { controller = "Users", id = createdUser.Id }, userToReturn);
         }
     }
 }

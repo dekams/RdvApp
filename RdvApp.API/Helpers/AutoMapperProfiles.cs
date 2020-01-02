@@ -21,6 +21,7 @@ namespace RdvApp.API.Helpers
                 .ForMember(dest => dest.Age, opt => opt.MapFrom(src => src.DateOfBirth.CalculateAge()));
 
             CreateMap<UserForUpdateDto, User>();
+            CreateMap<UserForRegisterDto, User>();
 
             CreateMap<Photo, PhotosForDetailedDto>();
             CreateMap<PhotoForCreationDto, Photo>();

@@ -4,6 +4,7 @@ import { map } from 'rxjs/operators';
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { environment } from 'src/environments/environment';
 import { BehaviorSubject } from 'rxjs';
+import { User } from '../_models/user';
 
 @Injectable({
   providedIn: 'root'
@@ -18,7 +19,7 @@ export class AuthService {
   private readonly jwtHelper = new JwtHelperService();
   private decodedToken: any;
   // tslint:disable-next-line: max-line-length
-  public readonly photoSubject = new BehaviorSubject<string>((this.photoUrl) ? this.photoUrl : '../../../assets/user.png');
+  public readonly photoSubject = new BehaviorSubject<string>(this.photoUrl);
 
   static getToken() {
     return localStorage.getItem('token');
@@ -26,8 +27,8 @@ export class AuthService {
 
   constructor(private http: HttpClient) { }
 
-  register(model: any) {
-    return this.http.post(`${this.baseUrl}/register`, model);
+  register(user: User) {
+    return this.http.post(`${this.baseUrl}/register`, user);
   }
 
   login(model: any) {
@@ -79,6 +80,9 @@ export class AuthService {
   }
 
   setPhotoUrl(photoUrl: string) {
+    if (!photoUrl) {
+      photoUrl = '../../../assets/user.png';
+    }
     localStorage.setItem(this.photoUrlKey, photoUrl);
     this.photoSubject.next(photoUrl);
   }
