@@ -8,10 +8,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using RdvApp.API.Data;
 using RdvApp.API.Dtos;
+using RdvApp.API.Helpers;
 using RdvApp.API.Models;
 
 namespace RdvApp.API.Controllers
 {
+    [ServiceFilter(typeof(LogUserActivity))]
     [Authorize]
     [Route("api/[controller]")]
     [ApiController]

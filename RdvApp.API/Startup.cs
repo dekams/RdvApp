@@ -33,6 +33,7 @@ namespace RdvApp.API
             services.AddAutoMapper(typeof(DatingRepository).Assembly);
             services.AddScoped<IAuthRepository, AuthRepository>();
             services.AddScoped<IDatingRepository, DatingRepository>();
+            services.AddScoped<LogUserActivity>();
             services.AddDbContext<DataContext>(options => options.UseSqlServer(Configuration.GetConnectionString("ValueCnx")));
             services.AddControllers().AddNewtonsoftJson(opt =>
             {
