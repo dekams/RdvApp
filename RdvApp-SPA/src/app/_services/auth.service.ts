@@ -11,6 +11,7 @@ import { User } from '../_models/user';
 })
 export class AuthService {
 
+  private readonly userKey = 'user';
   private readonly tokenKey = 'token';
   private readonly photoUrlKey = 'photoUrl';
   private readonly name = 'unique_name';
@@ -39,8 +40,9 @@ export class AuthService {
 
           if (user) {
             localStorage.setItem(this.tokenKey, user.token);
+            localStorage.setItem(this.userKey, JSON.stringify(user.current));
 
-            this.setPhotoUrl(user.photoUrl);
+            this.setPhotoUrl(user.current.photoUrl);
             this.decodedToken = this.jwtHelper.decodeToken(user.token);
 
             localStorage.setItem(this.name, this.decodedToken.unique_name);
@@ -55,6 +57,10 @@ export class AuthService {
 
     const token = localStorage.getItem(this.tokenKey);
     return !this.jwtHelper.isTokenExpired(token);
+  }
+
+  get currentUser() {
+    return JSON.parse(localStorage.getItem(this.userKey)) as User;
   }
 
   get token() {
@@ -89,6 +95,7 @@ export class AuthService {
 
   logout() {
     localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.userKey);
     localStorage.removeItem(this.photoUrlKey);
     localStorage.removeItem(this.name);
     localStorage.removeItem(this.nameid);

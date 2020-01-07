@@ -53,10 +53,10 @@ namespace RdvApp.API.Controllers
             };
             var tokenHandler = new JwtSecurityTokenHandler();
             var token = tokenHandler.CreateToken(tokenDescriptor);
-
+            // photoUrl = userFromRepo?.Photos?.FirstOrDefault(p => p.IsMain)?.Url
             return Ok(new {
                 token = tokenHandler.WriteToken(token),
-                photoUrl = userFromRepo?.Photos?.FirstOrDefault(p => p.IsMain)?.Url
+                current = mapper.Map<UserForListDto>(userFromRepo)
             });
         }
 
