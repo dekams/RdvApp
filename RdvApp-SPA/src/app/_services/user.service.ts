@@ -21,7 +21,7 @@ export class UserService {
   //   })
   // };
 
-  getUsers(page?: number, itemPerPage?: number, userParams?: any) {
+  getUsers(page?: number, itemPerPage?: number, userParams?: any, likesParam?: any) {
     const paginatedResult: PaginatedResult<User[]> = new PaginatedResult<User[]>();
     let params = new HttpParams();
 
@@ -35,6 +35,14 @@ export class UserService {
       params = params.append('minAge', userParams.minAge.toString());
       params = params.append('maxAge', userParams.maxAge.toString());
       params = params.append('orderBy', userParams.orderBy);
+    }
+
+    if (likesParam === 'Likers') {
+      params = params.append('likers', 'true');
+    }
+
+    if (likesParam === 'Likees') {
+      params = params.append('likees', 'true');
     }
 
     return this.http.get<User[]>(this.baseUrl, { observe: 'response', params })

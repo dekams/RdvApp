@@ -48,7 +48,19 @@ namespace RdvApp.API.Data
                 .Include(u => u.Photos)
                 .OrderByDescending(u => u.LastActive)
                 .Where(u => u.Id != userParams.UserId)
-                .Where(u => u.Gender != userParams.Gender);
+                .Where(u => u.Gender == userParams.Gender);
+
+            if (userParams.Likers)
+            {
+                var userLikers = await GetUserLikes(userParams.UserId, userParams.Likers);
+                users = users.Where(u => userLikers.Contains(u.Id));
+            }
+
+            if (userParams.Likees)
+            {
+                var userLikees = await GetUserLikes(userParams.UserId, userParams.Likers);
+                users = users.Where(u => userLikees.Contains(u.Id));
+            }
 
             if (userParams.MinAge != 18 || userParams.MaxAge != 99)
             {
@@ -74,9 +86,24 @@ namespace RdvApp.API.Data
             return await PageList<User>.CreateAsync(users, userParams.PageNumber, userParams.PageSize);
         }
 
+        private async Task<IEnumerable<int>> GetUserLikes(int id, bool likers)
+        {
+            var user = await context.Users.Include(u => u.Likers).Include(u => u.Likees).FirstOrDefaultAsync(u => u.Id == id);
+
+            if (likers)
+                return user.Likers.Where(l => l.LikeeId == id).Select(l => l.LikerId);
+
+            return user.Likees.Where(l => l.LikerId == id).Select(l => l.LikeeId);
+        }
+
         public async Task<bool> SaveAll()
         {
             return await context.SaveChangesAsync() > 0;
+        }
+
+        public async Task<Like> GetLike(int userId, int recipientId)
+        {
+            return await context.Likes.FirstOrDefaultAsync(u => u.LikerId == userId && u.LikeeId == recipientId);
         }
     }
 }
